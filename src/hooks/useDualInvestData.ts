@@ -106,35 +106,55 @@ export function useOrderRecords(investStatus?: number, pageNum?: number, pageSiz
   })
 
   useEffect(() => {
-    const id = setInterval(() => {
+    const fn = () =>
       Axios.get<{ records: OrderRecord[]; pages: string; size: string; total: string }>('getOrderRecord', {
-        address: account,
+        address: null,
         investStatus,
         pageNum,
         pageSize
       })
-        .then(r => {
-          if (r.data.code !== 200) {
-            throw Error(r.data.msg)
-          }
-          setOrderList(r.data.data.records)
-          setPageParams({
-            count: parseInt(r.data.data.pages, 10),
-            perPage: parseInt(r.data.data.size, 10),
-            total: parseInt(r.data.data.total, 10)
-          })
-        })
+
+    const callback = (r: any) => {
+      if (r.data.code !== 200) {
+        throw Error(r.data.msg)
+      }
+      setOrderList(r.data.data.records)
+      setPageParams({
+        count: parseInt(r.data.data.pages, 10),
+        perPage: parseInt(r.data.data.size, 10),
+        total: parseInt(r.data.data.total, 10)
+      })
+    }
+
+    const id = setInterval(() => {
+      fn()
+        .then(r => callback(r))
         .catch(e => {
+          clearInterval(id)
+          retryRequest(fn, 3000, 5)
           console.error(e)
         })
     }, 3000)
-
-    return () => {
-      clearInterval(id)
-    }
   }, [account, investStatus, pageNum, pageSize])
   return {
     orderList,
     pageParams
   }
 }
+
+const wait = (ms: number) => new Promise(r => setTimeout(r, ms))
+
+const retryRequest = (request: () => Promise<any>, delay: number, retries: number): Promise<any> =>
+  new Promise((resolve, reject) => {
+    return request()
+      .then(resolve)
+      .catch(reason => {
+        if (retries > 0) {
+          return wait(delay)
+            .then(retryRequest.bind(null, request, delay, retries - 1))
+            .then(resolve)
+            .catch(reject)
+        }
+        return reject(reason)
+      })
+  })
