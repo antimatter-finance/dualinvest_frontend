@@ -3,6 +3,7 @@ import { Axios } from 'utils/axios'
 import { ProductList, productListFormatter, productFormatter, Product, OrderRecord } from 'utils/fetch/product'
 import { AccountRecord } from 'utils/fetch/account'
 import { useActiveWeb3React } from 'hooks'
+import { retry, RetryableError } from 'utils/retry'
 
 export enum InvestStatus {
   Confirming = 1,
@@ -17,8 +18,10 @@ export function useProductList() {
   const [productList, setProductList] = useState<ProductList | undefined>(undefined)
 
   useEffect(() => {
+    const fn = () => Axios.get('getProducts')
+
     const id = setInterval(() => {
-      Axios.get('getProducts')
+      fn()
         .then(r => {
           if (r.data.code !== 200) {
             throw Error(r.data.msg)
@@ -41,8 +44,9 @@ export function useProduct(productId: string) {
   const [product, setProduct] = useState<Product | undefined>(undefined)
 
   useEffect(() => {
+    const fn = () => Axios.get('getProducts?productId=' + productId)
     const id = setInterval(() => {
-      Axios.get('getProducts?productId=' + productId)
+      fn()
         .then(r => {
           if (r.data.code !== 200) {
             throw Error(r.data.msg)
@@ -50,7 +54,9 @@ export function useProduct(productId: string) {
           setProduct(productFormatter(r.data.data))
         })
         .catch(e => {
-          console.error(e)
+          // retry(fn, 3000, 5)
+          clearInterval(id)
+          console.log(e)
         })
     }, 3000)
 
@@ -71,8 +77,10 @@ export function useAccountRecord(pageNum = 1, pageSize = 8) {
   })
 
   useEffect(() => {
+    const fn = () => Axios.get('getAccountRecord', { address: account, pageNum, pageSize })
+
     const id = setInterval(() => {
-      Axios.get('getAccountRecord', { address: account, pageNum, pageSize })
+      fn()
         .then(r => {
           if (r.data.code !== 200) {
             throw Error(r.data.msg)
@@ -85,7 +93,9 @@ export function useAccountRecord(pageNum = 1, pageSize = 8) {
           })
         })
         .catch(e => {
-          console.error(e)
+          // retry(fn, 3000, 5)
+          clearInterval(id)
+          console.log(e)
         })
     }, 3000)
 
@@ -106,55 +116,57 @@ export function useOrderRecords(investStatus?: number, pageNum?: number, pageSiz
   })
 
   useEffect(() => {
-    const fn = () =>
-      Axios.get<{ records: OrderRecord[]; pages: string; size: string; total: string }>('getOrderRecord', {
-        address: null,
-        investStatus,
-        pageNum,
-        pageSize
-      })
-
-    const callback = (r: any) => {
-      if (r.data.code !== 200) {
-        throw Error(r.data.msg)
-      }
-      setOrderList(r.data.data.records)
-      setPageParams({
-        count: parseInt(r.data.data.pages, 10),
-        perPage: parseInt(r.data.data.size, 10),
-        total: parseInt(r.data.data.total, 10)
-      })
-    }
-
     const id = setInterval(() => {
-      fn()
-        .then(r => callback(r))
+      const { promise } = retryRequst(() =>
+        Axios.get<{ records: OrderRecord[]; pages: string; size: string; total: string }>('getOrderRecord', {
+          address: null,
+          investStatus,
+          pageNum,
+          pageSize
+        })
+      )
+
+      promise
+        .then(r => {
+          setOrderList(r.data.data.records)
+          setPageParams({
+            count: parseInt(r.data.data.pages, 10),
+            perPage: parseInt(r.datadata.size, 10),
+            total: parseInt(r.data.data.total, 10)
+          })
+        })
         .catch(e => {
           clearInterval(id)
-          retryRequest(fn, 3000, 5)
-          console.error(e)
+          console.log(e)
         })
     }, 3000)
+
+    return () => clearInterval(id)
   }, [account, investStatus, pageNum, pageSize])
+
   return {
     orderList,
     pageParams
   }
 }
 
-const wait = (ms: number) => new Promise(r => setTimeout(r, ms))
+export function retryRequst(fn: () => Promise<any>) {
+  const retryOptions = {
+    n: 5,
+    minWait: 250,
+    maxWait: 1000
+  }
 
-const retryRequest = (request: () => Promise<any>, delay: number, retries: number): Promise<any> =>
-  new Promise((resolve, reject) => {
-    return request()
-      .then(resolve)
-      .catch(reason => {
-        if (retries > 0) {
-          return wait(delay)
-            .then(retryRequest.bind(null, request, delay, retries - 1))
-            .then(resolve)
-            .catch(reject)
-        }
-        return reject(reason)
-      })
-  })
+  return retry(
+    () =>
+      fn()
+        .then(r => {
+          return r
+        })
+        .catch(e => {
+          console.log(e)
+          throw new RetryableError()
+        }),
+    retryOptions
+  )
+}
