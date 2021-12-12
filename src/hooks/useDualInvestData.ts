@@ -116,32 +116,27 @@ export function useOrderRecords(investStatus?: number, pageNum?: number, pageSiz
   })
 
   useEffect(() => {
-    const id = setInterval(() => {
-      const { promise } = retryRequst(() =>
-        Axios.get<{ records: OrderRecord[]; pages: string; size: string; total: string }>('getOrderRecord', {
-          address: null,
-          investStatus,
-          pageNum,
-          pageSize
-        })
-      )
+    const { promise } = retryRequst(() =>
+      Axios.get<{ records: OrderRecord[]; pages: string; size: string; total: string }>('getOrderRecords', {
+        address: account,
+        investStatus,
+        pageNum,
+        pageSize
+      })
+    )
 
-      promise
-        .then(r => {
-          setOrderList(r.data.data.records)
-          setPageParams({
-            count: parseInt(r.data.data.pages, 10),
-            perPage: parseInt(r.datadata.size, 10),
-            total: parseInt(r.data.data.total, 10)
-          })
+    promise
+      .then(r => {
+        setOrderList(r.data.data.records)
+        setPageParams({
+          count: parseInt(r.data.data.pages, 10),
+          perPage: parseInt(r.data.data.size, 10),
+          total: parseInt(r.data.data.total, 10)
         })
-        .catch(e => {
-          clearInterval(id)
-          console.log(e)
-        })
-    }, 3000)
-
-    return () => clearInterval(id)
+      })
+      .catch(e => {
+        console.log(e)
+      })
   }, [account, investStatus, pageNum, pageSize])
 
   return {
@@ -160,11 +155,8 @@ export function retryRequst(fn: () => Promise<any>) {
   return retry(
     () =>
       fn()
-        .then(r => {
-          return r
-        })
+        .then(r => r)
         .catch(e => {
-          console.log(e)
           throw new RetryableError()
         }),
     retryOptions
