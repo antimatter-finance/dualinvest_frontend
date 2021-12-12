@@ -3,6 +3,7 @@ import { Axios } from 'utils/axios'
 import { ProductList, productListFormatter, productFormatter, Product, OrderRecord } from 'utils/fetch/product'
 import { AccountRecord } from 'utils/fetch/account'
 import { useActiveWeb3React } from 'hooks'
+import { retry, RetryableError } from 'utils/retry'
 
 export enum InvestStatus {
   Confirming = 1,
@@ -106,35 +107,49 @@ export function useOrderRecords(investStatus?: number, pageNum?: number, pageSiz
   })
 
   useEffect(() => {
-    const id = setInterval(() => {
-      Axios.get<{ records: OrderRecord[]; pages: string; size: string; total: string }>('getOrderRecord', {
+    const { promise } = retryRequst(() =>
+      Axios.get<{ records: OrderRecord[]; pages: string; size: string; total: string }>('getOrderRecords', {
         address: account,
         investStatus,
         pageNum,
         pageSize
       })
-        .then(r => {
-          if (r.data.code !== 200) {
-            throw Error(r.data.msg)
-          }
-          setOrderList(r.data.data.records)
-          setPageParams({
-            count: parseInt(r.data.data.pages, 10),
-            perPage: parseInt(r.data.data.size, 10),
-            total: parseInt(r.data.data.total, 10)
-          })
-        })
-        .catch(e => {
-          console.error(e)
-        })
-    }, 3000)
+    )
 
-    return () => {
-      clearInterval(id)
-    }
+    promise
+      .then(r => {
+        setOrderList(r.data.data.records)
+        setPageParams({
+          count: parseInt(r.data.data.pages, 10),
+          perPage: parseInt(r.data.data.size, 10),
+          total: parseInt(r.data.data.total, 10)
+        })
+      })
+      .catch(e => {
+        console.log(e)
+      })
   }, [account, investStatus, pageNum, pageSize])
+
   return {
     orderList,
     pageParams
   }
+}
+
+export function retryRequst(fn: () => Promise<any>) {
+  const retryOptions = {
+    n: 5,
+    minWait: 250,
+    maxWait: 1000
+  }
+
+  return retry(
+    () =>
+      fn()
+        .then(r => r)
+        .catch(e => {
+          throw new RetryableError(e)
+        }),
+    retryOptions
+  )
 }
