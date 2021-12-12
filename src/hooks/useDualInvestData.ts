@@ -108,7 +108,7 @@ export function useOrderRecords(investStatus?: number, pageNum?: number, pageSiz
 
   useEffect(() => {
     const { promise } = retryRequst(() =>
-      Axios.get<{ records: OrderRecord[]; pages: string; size: string; total: string }>('getOrderRecords', {
+      Axios.get<{ records: OrderRecord[]; pages: string; size: string; total: string }>('getOrderRecord', {
         address: account,
         investStatus,
         pageNum,
