@@ -56,7 +56,10 @@ export function PlayVideo() {
       >
         <Box padding={'15px'}>
           <video width={isDownMd ? width : '600px'} controls>
-            <source src={'/video/dual-invest-vedio.mp4'} type="video/mp4" />
+            <source
+              src={'https://github.com/antimatter-dao/antimatter-assets/blob/main/dual-invest-vedio.mp4?raw=true'}
+              type="video/mp4"
+            />
             Your browser does not support the video tag.
           </video>
           <Box display="flex" width="100%" justifyContent={'space-between'} alignItems="center">
