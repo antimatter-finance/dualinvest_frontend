@@ -105,7 +105,7 @@ export default function Dashboard() {
         <TransactionTypeIcon key="type" txType={RecordType[record.type]} />,
         <Box key={1} display="flex" gap={10} alignItems="center">
           <CurrencyLogo currency={token} size="16px" />
-          {record.id} {SYMBOL_MAP[record.symbol as keyof typeof SYMBOL_MAP] ?? record.symbol}
+          {SYMBOL_MAP[record.symbol as keyof typeof SYMBOL_MAP] ?? record.symbol}
         </Box>,
         <Box key={1} display="flex" alignItems="center">
           <ExternalLink
