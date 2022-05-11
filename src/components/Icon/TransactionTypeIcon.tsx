@@ -25,13 +25,13 @@ export default function TransactionTypeIcon(props: Props) {
     case 'vault withdraw':
       return (
         <Box>
-          <WithdrawIcon /> Vault Withdraw
+          <WithdrawIcon /> Withdraw Recurring
         </Box>
       )
     case 'vault deposit':
       return (
         <Box>
-          <DepositIcon /> Vault Deposit
+          <DepositIcon /> Deposit Recurring
         </Box>
       )
     default:
