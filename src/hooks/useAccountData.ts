@@ -4,8 +4,9 @@ import { OrderRecord } from 'utils/fetch/record'
 import { useActiveWeb3React } from 'hooks'
 import usePollingWithMaxRetries from './usePollingWithMaxRetries'
 import { SUPPORTED_CURRENCY_SYMBOL } from 'constants/currencies'
-import { AccountRecord } from 'utils/fetch/account'
+import { AccountRecord, Record } from 'utils/fetch/account'
 import { ChainId, NETWORK_CHAIN_ID } from 'constants/chain'
+import qs from 'qs'
 
 export enum InvestStatus {
   Confirming = 1,
@@ -24,6 +25,8 @@ export enum INVEST_TYPE {
 }
 
 const PageSize = 8
+
+const types = [1, 2, 3, 4].join('&types=')
 
 export type FilterType = 'All' | typeof SUPPORTED_CURRENCY_SYMBOL[ChainId][number]
 
@@ -113,7 +116,7 @@ export function useOrderRecords(
 
 export function useAccountRecord(pageNum = 1, pageSize = 8) {
   const { account, chainId } = useActiveWeb3React()
-  const [accountRecord, setAccountRecord] = useState<AccountRecord | undefined>(undefined)
+  const [accountRecord, setAccountRecord] = useState<Record[] | undefined>(undefined)
   const [pageParams, setPageParams] = useState<{ count: number; perPage: number; total: number }>({
     count: 0,
     perPage: 0,
@@ -122,11 +125,18 @@ export function useAccountRecord(pageNum = 1, pageSize = 8) {
 
   const promiseFn = useCallback(() => {
     if (!account) return new Promise((resolve, reject) => reject(null))
-    return Axios.get('getAccountRecord', { account, pageNum, pageSize, chainId: chainId ?? NETWORK_CHAIN_ID })
+    const params = {
+      account,
+      pageNum,
+      pageSize,
+      chainId: chainId ?? NETWORK_CHAIN_ID,
+      types: ''
+    }
+    return Axios.get<AccountRecord>('getAccountRecord?' + qs.stringify(params) + '&types=' + types)
   }, [account, chainId, pageNum, pageSize])
 
   const callbackFn = useCallback(r => {
-    setAccountRecord(r.data.data)
+    setAccountRecord(r.data.data.list)
     setPageParams({
       count: parseInt(r.data.data.pages, 10),
       perPage: parseInt(r.data.data.size, 10),

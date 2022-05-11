@@ -111,6 +111,7 @@
     "jsbi": "^4.0.0",
     "lightweight-charts": "^3.7.0",
     "lottie-web": "^5.9.1",
+    "qs": "^6.10.3",
     "react-share": "^4.4.0",
     "toformat": "^2.0.0",
     "web3-utils": "^1.6.1"
