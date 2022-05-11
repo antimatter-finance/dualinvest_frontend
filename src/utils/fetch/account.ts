@@ -1,4 +1,4 @@
-interface Record {
+export interface Record {
   id: string
   account: string
   hash: string

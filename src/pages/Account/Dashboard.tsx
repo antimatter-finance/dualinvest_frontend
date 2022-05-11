@@ -89,15 +89,12 @@ export default function Dashboard() {
     }, 0)
     return accumulated.toFixed(2) + ''
   }, [accountBalances, indexPrices])
-  console.log(accountRecord?.records)
+
   const accountDetailsData = useMemo(() => {
-    const records = accountRecord?.records
+    const records = accountRecord
     if (!records) return []
 
     return records.reduce((acc, record) => {
-      if (![1, 2, 3, 4].includes(record.type)) {
-        return acc
-      }
       const scanLink = chainId ? getEtherscanLink(chainId, record.hash, 'transaction') : ''
       const token =
         chainId && isAddress(record.currency) ? CURRENCY_ADDRESS_MAP[toChecksumAddress(record.currency)] : undefined
@@ -132,7 +129,7 @@ export default function Dashboard() {
       acc.push(parsed)
       return acc
     }, [] as any[])
-  }, [accountRecord?.records, chainId, isDownMd])
+  }, [accountRecord, chainId, isDownMd])
 
   const handleDepositOpen = useCallback(() => {
     setIsDepositOpen(true)
