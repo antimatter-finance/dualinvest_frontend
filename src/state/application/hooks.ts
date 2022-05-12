@@ -2,7 +2,15 @@ import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useActiveWeb3React } from '../../hooks'
 import { AppDispatch, AppState } from '../index'
-import { addPopup, ApplicationModal, PopupContent, removePopup, setOpenModal } from './actions'
+import {
+  addPopup,
+  addSubscription,
+  ApplicationModal,
+  PopupContent,
+  removePopup,
+  removeSubscription,
+  setOpenModal
+} from './actions'
 
 export function useBlockNumber(): number | undefined {
   const { chainId } = useActiveWeb3React()
@@ -66,4 +74,32 @@ export function useRemovePopup(): (key: string) => void {
 export function useActivePopups(): AppState['application']['popupList'] {
   const list = useSelector((state: AppState) => state.application.popupList)
   return useMemo(() => list.filter(item => item.show), [list])
+}
+
+// get the list of subscriptions
+export function useSubscriptions(): AppState['application']['subscriptionList'] {
+  const list = useSelector((state: AppState) => state.application.subscriptionList)
+  return useMemo(() => list, [list])
+}
+
+// returns a function that allows adding a subscription
+export function useAddSubscription(): (prop: { text: string; hash: string }) => void {
+  const dispatch = useDispatch()
+
+  return useCallback(
+    prop => {
+      dispatch(addSubscription(prop))
+    },
+    [dispatch]
+  )
+}
+// function removes a subscription via its hash
+export function useRemoveSubscription(): (hash: string) => void {
+  const dispatch = useDispatch()
+  return useCallback(
+    (hash: string) => {
+      dispatch(removeSubscription({ hash }))
+    },
+    [dispatch]
+  )
 }

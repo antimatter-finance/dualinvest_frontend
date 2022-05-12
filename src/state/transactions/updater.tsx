@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useActiveWeb3React } from '../../hooks'
-import { useAddPopup, useBlockNumber } from '../application/hooks'
+import { useAddPopup, useAddSubscription, useBlockNumber } from '../application/hooks'
 import { AppDispatch, AppState } from '../index'
 import { checkedTransaction, finalizeTransaction } from './actions'
 
@@ -39,6 +39,7 @@ export default function Updater(): null {
 
   // show popup on confirm
   const addPopup = useAddPopup()
+  const addSubscription = useAddSubscription()
 
   useEffect(() => {
     if (!chainId || !library || !lastBlockNumber) return
@@ -67,6 +68,7 @@ export default function Updater(): null {
                 })
               )
               if (transactions[hash].createOrder) {
+                addSubscription({ hash, text: transactions[hash].summary })
                 return
               }
               addPopup(
@@ -87,7 +89,7 @@ export default function Updater(): null {
             console.error(`failed to check transaction hash: ${hash}`, error)
           })
       })
-  }, [chainId, library, transactions, lastBlockNumber, dispatch, addPopup])
+  }, [chainId, library, transactions, lastBlockNumber, dispatch, addPopup, addSubscription])
 
   return null
 }

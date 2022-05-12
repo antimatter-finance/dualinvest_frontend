@@ -1,6 +1,7 @@
 import { styled } from '@mui/material/styles'
 import { useActivePopups } from 'state/application/hooks'
 import PopupItem from './PopupItem'
+import SubscriptionPopup from 'components/SubscriptionPopup/SubscriptionPopup'
 
 const MobilePopupWrapper = styled('div')<any>(({ height, theme }: any) => ({
   position: 'relative',
@@ -8,7 +9,8 @@ const MobilePopupWrapper = styled('div')<any>(({ height, theme }: any) => ({
   height: height,
   zIndex: 1301,
   margin: height ? '0 auto;' : 0,
-  marginBottom: height ? '20px' : 0,
+  marginTop: height ? '40px' : 0,
+  marginBottom: height ? '10px' : 0,
   display: 'none',
   [theme.breakpoints.down('md')]: {
     display: 'block'
@@ -29,7 +31,7 @@ const MobilePopupInner = styled('div')({
 
 const FixedPopupColumn = styled('div')(({ theme }) => ({
   position: 'fixed',
-  top: `calc(${theme.height.header} + 10px)`,
+  top: `calc(${theme.height.header} + 40px)`,
   right: 60,
   maxWidth: 320,
   width: '100%',
@@ -47,6 +49,7 @@ export default function Popups() {
 
   return (
     <>
+      <SubscriptionPopup />
       <FixedPopupColumn>
         {activePopups.map(item => (
           <PopupItem key={item.key} content={item.content} popKey={item.key} removeAfterMs={item.removeAfterMs} />
