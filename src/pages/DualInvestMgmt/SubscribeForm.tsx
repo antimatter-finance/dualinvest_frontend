@@ -15,7 +15,7 @@ import TransactionSubmittedModal from 'components/Modal/TransactionModals/Transa
 import TransacitonPendingModal from 'components/Modal/TransactionModals/TransactionPendingModal'
 import { useDualInvestBalance } from 'hooks/useDualInvest'
 import { tryParseAmount } from 'utils/parseAmount'
-import { useAddPopup } from 'state/application/hooks'
+import { useAddPopup, useRemoveSubscription } from 'state/application/hooks'
 import { InvesStatus, InvesStatusType, OrderRecord } from 'utils/fetch/record'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { useDualInvestCallback } from 'hooks/useDualInvest'
@@ -57,6 +57,7 @@ export default function SubscribeForm({
   const addPopup = useAddPopup()
   const addTransaction = useTransactionAdder()
   const { createOrderCallback, checkOrderStatusCallback } = useDualInvestCallback()
+  const removeSubscription = useRemoveSubscription()
 
   const handleMax = useCallback(() => {
     if (!product) return
@@ -143,7 +144,9 @@ export default function SubscribeForm({
         const createOrderRes = await createOrderCallback(orderId, productId, val, currentCurrency.address, 0)
         addTransaction(createOrderRes, {
           createOrder: true,
-          summary: ''
+          summary: `Subscribing ${(+amount * +product?.multiplier * multiplier).toFixed(2)} ${
+            product.investCurrency
+          } to ${product?.currency} [${product?.type === 'CALL' ? 'upward' : 'down'}], order ID:${orderId}`
         })
         hideModal()
         setPending(false)
@@ -157,12 +160,14 @@ export default function SubscribeForm({
               .then(r => {
                 const statusCode = r.data.data.records[0].investStatus as keyof typeof InvesStatus
                 if (InvesStatus[statusCode] === InvesStatusType.ERROR) {
+                  removeSubscription(createOrderRes.hash)
                   clearInterval(timeoutId)
                   reject('Subscription fail')
                   throw Error('Subscription failed, please try again later')
                 }
                 if (InvesStatus[statusCode] === InvesStatusType.SUCCESS) {
                   clearInterval(timeoutId)
+                  removeSubscription(createOrderRes.hash)
                   resolve(() => {})
                   showModal(
                     <TransactionSubmittedModal header="Successful Subscription!">
@@ -219,6 +224,7 @@ export default function SubscribeForm({
       id,
       multiplier,
       product,
+      removeSubscription,
       setAmount,
       showModal
     ]

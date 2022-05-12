@@ -1,17 +1,29 @@
 import { createReducer, nanoid } from '@reduxjs/toolkit'
-import { addPopup, PopupContent, removePopup, updateBlockNumber, ApplicationModal, setOpenModal } from './actions'
+import {
+  addPopup,
+  PopupContent,
+  removePopup,
+  updateBlockNumber,
+  ApplicationModal,
+  setOpenModal,
+  addSubscription,
+  removeSubscription
+} from './actions'
 
 type PopupList = Array<{ key: string; show: boolean; content: PopupContent; removeAfterMs: number | null }>
 
+type SubscriptionList = Array<{ hash: string; text: string }>
 export interface ApplicationState {
   readonly blockNumber: { readonly [chainId: number]: number }
   readonly popupList: PopupList
+  readonly subscriptionList: SubscriptionList
   readonly openModal: ApplicationModal | null
 }
 
 const initialState: ApplicationState = {
   blockNumber: {},
   popupList: [],
+  subscriptionList: [],
   openModal: null
 }
 
@@ -44,5 +56,23 @@ export default createReducer(initialState, builder =>
           p.show = false
         }
       })
+    })
+    .addCase(removeSubscription, (state, { payload: { hash } }) => {
+      const index = state.subscriptionList.findIndex(p => {
+        return p.hash === hash
+      })
+      if (index === -1) return
+      state.subscriptionList.splice(index, 1)
+    })
+    .addCase(addSubscription, (state, { payload: { hash, text } }) => {
+      state.subscriptionList = (hash
+        ? state.subscriptionList.filter(item => item.hash !== hash)
+        : state.subscriptionList
+      ).concat([
+        {
+          hash,
+          text
+        }
+      ])
     })
 )
