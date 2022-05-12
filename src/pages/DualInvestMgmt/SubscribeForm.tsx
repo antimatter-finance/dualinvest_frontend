@@ -146,7 +146,7 @@ export default function SubscribeForm({
           createOrder: true,
           summary: `Subscribing ${(+amount * +product?.multiplier * multiplier).toFixed(2)} ${
             product.investCurrency
-          } to ${product?.currency} [${product?.type === 'CALL' ? 'upward' : 'down'}], order ID:${orderId}`
+          } to ${product?.currency} [${product?.type === 'CALL' ? 'Upward' : 'Downward'}]`
         })
         hideModal()
         setPending(false)
@@ -195,7 +195,7 @@ export default function SubscribeForm({
               summary: `Subscribed ${(+amount * +product?.multiplier * multiplier).toFixed(2)} ${
                 product.investCurrency
               } successfully to ${product?.currency} [${
-                product?.type === 'CALL' ? 'upward' : 'down'
+                product?.type === 'CALL' ? 'Upward' : 'Downward'
               }], order ID:${orderId}`
             }
           },
