@@ -7,7 +7,7 @@ import TransactionPopup from './TransactionPopup'
 import { CloseIcon } from 'theme/components'
 
 export const Popup = styled('div')(({ theme }) => ({
-  display: 'inlineBlock',
+  display: 'inline-block',
   width: '100%',
   backgroundColor: theme.palette.background.paper,
   border: '1px solid ' + theme.palette.primary.main,
@@ -74,7 +74,7 @@ export default function PopupItem({
 
   return (
     <Popup>
-      <CloseIcon onClick={removeThisPopup} />
+      <CloseIcon onClick={removeThisPopup} top="8px" right="8px" />
       {popupContent}
       {removeAfterMs !== null ? <AnimatedFader style={faderStyle} /> : null}
     </Popup>
