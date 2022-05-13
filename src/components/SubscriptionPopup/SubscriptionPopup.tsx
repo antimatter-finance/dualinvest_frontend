@@ -1,7 +1,17 @@
 import { useState } from 'react'
-import { Box, Collapse, styled, Typography, useTheme } from '@mui/material'
+import { Box, Slide, styled, Typography, useTheme, keyframes } from '@mui/material'
 import { useSubscriptions } from 'state/application/hooks'
-import { CloseIcon } from 'theme/components'
+import { CloseIcon, Dots } from 'theme/components'
+
+const listId = 'subscription_list'
+
+const ripple = keyframes`
+  0% {
+    box-shadow: 0 0 0 0 rgb(49 176 71 / 40%), 0 0 0 13px rgb(49 176 71 / 40%);
+  }
+  100% {
+    box-shadow: 0 0 0 13px rgb(49 176 71 / 40%), 0 0 0 23px rgb(49 176 71 / 0%);
+`
 
 const Count = styled(Box)(({ theme }) => ({
   background: '#ffffff',
@@ -11,10 +21,11 @@ const Count = styled(Box)(({ theme }) => ({
   justifyContent: 'center',
   fontWeight: 700,
   fontSize: 14,
-  height: 20,
-  width: 20,
+  height: 22,
+  width: 22,
   borderRadius: '50%',
-  userSelect: 'none'
+  userSelect: 'none',
+  animation: `${ripple} 1s linear infinite`
 }))
 
 const Subscribing = styled(Box)({
@@ -27,6 +38,14 @@ const Subscribing = styled(Box)({
   userSelect: 'none'
 })
 
+const List = styled(Box)(({ theme }) => ({
+  border: '1px solid transparent',
+  background: '#ffffff',
+  color: theme.palette.primary.main,
+  position: 'relative',
+  zIndex: theme.zIndex.modal + 2
+}))
+
 export default function SubscriptionPopup() {
   const [isOpen, setIsOpen] = useState(false)
   const theme = useTheme()
@@ -34,21 +53,25 @@ export default function SubscriptionPopup() {
 
   return (
     <>
-      <Collapse in={!!list.length} orientation="horizontal">
+      <Slide direction="left" in={!!list.length} mountOnEnter unmountOnExit>
         <Box
           position="fixed"
           top={{ xs: theme.height.mobileHeader, sm: theme.height.header }}
           zIndex={theme.zIndex.modal + 2}
           right="0"
           sx={{
-            borderTopLeftRadius: isOpen ? '15px' : '30px',
-            borderBottomLeftRadius: isOpen ? 0 : '30px',
+            height: 40,
+            borderTopLeftRadius: isOpen ? '15px' : '40px',
+            borderBottomLeftRadius: isOpen ? 0 : '40px',
             background: theme.palette.primary.main,
-            overflow: 'hidden',
-            '& .list': {
+            '&:hover': {
+              cursor: 'pointer'
+            },
+            [`& #${listId}`]: {
               height: isOpen ? 'auto' : 0,
               width: isOpen ? 'auto' : 0,
-              padding: isOpen ? '10px' : 0
+              padding: isOpen ? '10px' : 0,
+              borderColor: isOpen ? theme.palette.primary.main : 'transparent'
             }
           }}
         >
@@ -66,14 +89,16 @@ export default function SubscriptionPopup() {
                 right={3}
                 sx={{
                   '& svg': {
+                    width: 20,
+                    height: 20,
                     color: '#ffffff'
                   }
                 }}
               />
             )}
             <Box
-              height={30}
-              width={30}
+              height={40}
+              width={40}
               sx={{
                 color: theme.palette.primary.main,
                 borderTopLeftRadius: '50%',
@@ -85,26 +110,20 @@ export default function SubscriptionPopup() {
             >
               <Count>{list.length}</Count>
             </Box>
-            <Subscribing>Subscribing...</Subscribing>
+            <Subscribing>
+              Subscribing
+              <Dots />
+            </Subscribing>
           </Box>
-          <Box
-            className="list"
-            zIndex={theme.zIndex.modal + 2}
-            sx={{
-              border: '1px solid ' + theme.palette.primary.main,
-              background: '#ffffff',
-              color: theme.palette.primary.main,
-              position: 'relative'
-            }}
-          >
+          <List id={listId}>
             {list.map(({ text, hash }) => (
               <Typography key={hash} maxWidth="250px" component="li">
                 {text}
               </Typography>
             ))}
-          </Box>
+          </List>
         </Box>
-      </Collapse>
+      </Slide>
     </>
   )
 }
