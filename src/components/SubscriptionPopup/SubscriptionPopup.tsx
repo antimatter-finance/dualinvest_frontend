@@ -53,7 +53,7 @@ export default function SubscriptionPopup() {
 
   return (
     <>
-      <Slide direction="left" in={!!list.length} mountOnEnter unmountOnExit>
+      <Slide direction="left" in={!list.length} mountOnEnter unmountOnExit>
         <Box
           position="fixed"
           top={{ xs: theme.height.mobileHeader, sm: theme.height.header }}
@@ -65,7 +65,9 @@ export default function SubscriptionPopup() {
             borderBottomLeftRadius: isOpen ? 0 : '40px',
             background: theme.palette.primary.main,
             '&:hover': {
-              cursor: 'pointer'
+              cursor: 'pointer',
+              opacity: 0.9,
+              boxShadow: ' 3px 3px 10px 0px rgb(49 176 71 / 40%)'
             },
             [`& #${listId}`]: {
               height: isOpen ? 'auto' : 0,
