@@ -53,7 +53,7 @@ export default function SubscriptionPopup() {
 
   return (
     <>
-      <Slide direction="left" in={!list.length} mountOnEnter unmountOnExit>
+      <Slide direction="left" in={!!list.length} mountOnEnter unmountOnExit>
         <Box
           position="fixed"
           top={{ xs: theme.height.mobileHeader, sm: theme.height.header }}
