@@ -1,4 +1,4 @@
-import { Typography, Box, useTheme, styled } from '@mui/material'
+import { Typography, Box, useTheme, styled, Button as MuiButton } from '@mui/material'
 import { useActiveWeb3React } from 'hooks/'
 import { shortenAddress } from 'utils/'
 import Copy from 'components/essential/Copy'
@@ -8,6 +8,10 @@ import OutlineButton from 'components/Button/OutlineButton'
 import Button from 'components/Button/Button'
 
 import SecondaryButton from 'components/Button/SecondaryButton'
+import { useCallback } from 'react'
+import { useDispatch } from 'react-redux'
+import { clearAllTransactions } from 'state/transactions/actions'
+import Transaction from './Transaction'
 
 const Dot = styled('span')({
   width: 24,
@@ -25,9 +29,16 @@ interface AccountDetailsProps {
   openOptions: () => void
 }
 
-export default function AccountDetails({ toggleWalletModal, ENSName, openOptions }: AccountDetailsProps) {
-  const { account, connector } = useActiveWeb3React()
+export default function AccountDetails({
+  toggleWalletModal,
+  ENSName,
+  openOptions,
+  pendingTransactions,
+  confirmedTransactions
+}: AccountDetailsProps) {
+  const { account, connector, chainId } = useActiveWeb3React()
   const theme = useTheme()
+  const dispatch = useDispatch()
 
   function formatConnectorName() {
     const { ethereum } = window
@@ -45,6 +56,10 @@ export default function AccountDetails({ toggleWalletModal, ENSName, openOptions
       </Typography>
     )
   }
+
+  const clearAllTransactionsCallback = useCallback(() => {
+    if (chainId) dispatch(clearAllTransactions({ chainId }))
+  }, [dispatch, chainId])
 
   return (
     <>
@@ -103,6 +118,34 @@ export default function AccountDetails({ toggleWalletModal, ENSName, openOptions
           Change
         </Button>
       </Box>
+      {!!pendingTransactions.length || !!confirmedTransactions.length ? (
+        <Box display="grid" gap="16px" width="100%" mt={20} padding={20}>
+          <Box display="flex" justifyContent="space-between" width="100%">
+            <Typography fontWeight={500}>Recent Transactions</Typography>
+            <MuiButton variant="text" onClick={clearAllTransactionsCallback}>
+              (clear all)
+            </MuiButton>
+          </Box>
+          <Box display="grid">
+            {renderTransactions(pendingTransactions)}
+            {renderTransactions(confirmedTransactions)}
+          </Box>
+        </Box>
+      ) : (
+        <Box display="flex" width="100%" justifyContent="center" marginTop={1}>
+          <Typography> Your transactions will appear here...</Typography>
+        </Box>
+      )}
     </>
+  )
+}
+
+function renderTransactions(transactions: string[]) {
+  return (
+    <Box>
+      {transactions.map((hash, i) => {
+        return <Transaction key={i} hash={hash} />
+      })}
+    </Box>
   )
 }

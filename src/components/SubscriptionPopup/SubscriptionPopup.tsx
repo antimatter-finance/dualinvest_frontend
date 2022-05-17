@@ -43,7 +43,8 @@ const List = styled(Box)(({ theme }) => ({
   background: '#ffffff',
   color: theme.palette.primary.main,
   position: 'relative',
-  zIndex: theme.zIndex.modal + 2
+  zIndex: theme.zIndex.modal + 2,
+  overflow: 'hidden'
 }))
 
 export default function SubscriptionPopup() {
@@ -119,7 +120,7 @@ export default function SubscriptionPopup() {
           </Box>
           <List id={listId}>
             {list.map(({ text, hash }) => (
-              <Typography key={hash} maxWidth="250px" component="li">
+              <Typography key={hash} maxWidth="270px" component="li">
                 {text}
               </Typography>
             ))}
