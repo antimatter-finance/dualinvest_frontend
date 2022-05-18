@@ -143,7 +143,7 @@ export default function BindModal({
         hideModal()
         setHash(r.hash)
         addTransaction(r, {
-          summary: `successfully bound to ${shortenAddress(value)} `
+          summary: `Bound to ${shortenAddress(value)} `
         })
       })
       .catch(e => {

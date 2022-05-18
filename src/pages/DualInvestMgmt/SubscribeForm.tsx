@@ -144,7 +144,7 @@ export default function SubscribeForm({
         const createOrderRes = await createOrderCallback(orderId, productId, val, currentCurrency.address, 0)
         addTransaction(createOrderRes, {
           createOrder: true,
-          summary: `Subscribing ${(+amount * +product?.multiplier * multiplier).toFixed(2)} ${
+          summary: `Subscribe ${(+amount * +product?.multiplier * multiplier).toFixed(2)} ${
             product.investCurrency
           } to ${product?.currency} [${product?.type === 'CALL' ? 'Upward' : 'Downward'}]`
         })

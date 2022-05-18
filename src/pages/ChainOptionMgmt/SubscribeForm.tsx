@@ -25,7 +25,7 @@ enum ErrorType {
   singleLimitExceed = 'Single Limit Exceeded'
 }
 
-export default function SubscribeForm({
+export default function ChainOptionForm({
   product,
   setAmount,
   amount,
