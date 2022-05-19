@@ -143,7 +143,7 @@ export default function AccountDetails({
 function renderTransactions(transactions: string[]) {
   return (
     <Box>
-      {transactions.slice(0, 6).map((hash, i) => {
+      {transactions.slice(0, 7).map((hash, i) => {
         return <Transaction key={i} hash={hash} />
       })}
     </Box>
