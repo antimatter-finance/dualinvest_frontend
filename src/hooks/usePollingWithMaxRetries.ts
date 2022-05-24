@@ -5,7 +5,8 @@ export default function usePollingWithMaxRetries(
   callback: (r: any) => void,
   delay = 30000,
   retries = 5,
-  promiseAll = false
+  promiseAll = false,
+  contractCall = false
 ) {
   useEffect(() => {
     let isMounted = true
@@ -16,15 +17,17 @@ export default function usePollingWithMaxRetries(
     fn &&
       fn()
         .then(r => {
-          if (promiseAll) {
-            r.map((item: any) => {
-              if (item.data.code !== 200) {
-                throw Error(item.data.msg)
-              }
-            })
-          }
-          if (!promiseAll && r.data.code !== 200) {
-            throw Error(r.data.msg)
+          if (!contractCall) {
+            if (promiseAll) {
+              r.map((item: any) => {
+                if (item.data.code !== 200) {
+                  throw Error(item.data.msg)
+                }
+              })
+            }
+            if (!promiseAll && r.data.code !== 200) {
+              throw Error(r.data.msg)
+            }
           }
           if (isMounted) {
             callback(r)
@@ -37,7 +40,7 @@ export default function usePollingWithMaxRetries(
     return () => {
       isMounted = false
     }
-  }, [fn, callback, promiseAll])
+  }, [fn, callback, promiseAll, contractCall])
 
   useEffect(() => {
     let isMounted = true
@@ -57,8 +60,17 @@ export default function usePollingWithMaxRetries(
               clearInterval(id)
               return
             }
-            if (r.data.code !== 200) {
-              throw Error(r.data.msg)
+            if (!contractCall) {
+              if (promiseAll) {
+                r.map((item: any) => {
+                  if (item.data.code !== 200) {
+                    throw Error(item.data.msg)
+                  }
+                })
+              }
+              if (!promiseAll && r.data.code !== 200) {
+                throw Error(r.data.msg)
+              }
             }
             if (isMounted) {
               callback(r)
@@ -74,5 +86,5 @@ export default function usePollingWithMaxRetries(
       isMounted = false
       clearInterval(id)
     }
-  }, [fn, callback, delay, retries])
+  }, [fn, callback, delay, retries, contractCall, promiseAll])
 }
