@@ -101,11 +101,20 @@ export function MgmtForm({
         onConfirm={handleConfirm}
         amount={
           product
-            ? (
-                +product.multiplier *
-                +amount *
-                (product ? (product.type === 'CALL' ? 1 : +product.strikePrice) : 1)
-              ).toFixed(2)
+            ? product?.investCurrency === 'USDT'
+              ? (
+                  Math.ceil(
+                    10 *
+                      +product.multiplier *
+                      +amount *
+                      (product ? (product.type === 'CALL' ? 1 : +product.strikePrice) : 1)
+                  ) / 10
+                ).toFixed(2)
+              : (
+                  +product.multiplier *
+                  +amount *
+                  (product ? (product.type === 'CALL' ? 1 : +product.strikePrice) : 1)
+                ).toFixed(2)
             : '-'
         }
         data={confirmData}
