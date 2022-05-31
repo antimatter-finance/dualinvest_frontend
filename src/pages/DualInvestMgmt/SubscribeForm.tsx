@@ -287,7 +287,7 @@ export default function SubscribeForm({
                     maxWidth={'55%'}
                     sx={{ wordBreak: 'break-all' }}
                   >
-                    {currentCurrency.symbol === 'USDT'
+                    {currentCurrency?.symbol === 'USDT'
                       ? Math.ceil(+product.multiplier * +amount * multiplier * 10) / 10
                       : (+product.multiplier * +amount * multiplier).toFixed(2)}{' '}
                     {product.investCurrency}
