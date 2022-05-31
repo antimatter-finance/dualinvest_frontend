@@ -115,10 +115,11 @@ export default function SubscribeForm({
   const handleSubscribe = useCallback(
     async (setIsConfirmed: (isConfirmed: boolean) => void) => {
       if (!product || !amount || !createOrderCallback || !checkOrderStatusCallback) return
-      const val = tryParseAmount(
-        (+amount * +product?.multiplier * multiplier).toFixed(2),
-        currentCurrency
-      )?.raw?.toString()
+      let valRaw = +amount * +product?.multiplier * multiplier
+      if (currentCurrency.symbol === 'USDT') {
+        valRaw = Math.ceil(valRaw * 10) / 10
+      }
+      const val = tryParseAmount(valRaw.toFixed(2), currentCurrency)?.raw?.toString()
       if (!val) return
       try {
         setPending(true)
@@ -286,7 +287,10 @@ export default function SubscribeForm({
                     maxWidth={'55%'}
                     sx={{ wordBreak: 'break-all' }}
                   >
-                    {(+product.multiplier * +amount * multiplier).toFixed(2)} {product.investCurrency}
+                    {currentCurrency.symbol === 'USDT'
+                      ? Math.ceil(+product.multiplier * +amount * multiplier * 10) / 10
+                      : (+product.multiplier * +amount * multiplier).toFixed(2)}{' '}
+                    {product.investCurrency}
                   </Typography>
                   <Typography
                     component="span"
@@ -319,7 +323,10 @@ export const getMinAmount = (product: Product | undefined) => {
   if (!product) return { string: '-', amount: 1 }
   const multiplier = product.type === 'CALL' ? 1 : +product.strikePrice
   const amount = Math.ceil(100 / +product.strikePrice)
-  return { string: `${amount} (${amount * multiplier * +product.multiplier} ${product.investCurrency})`, amount }
+  return {
+    string: `${amount} (${(amount * multiplier * +product.multiplier).toFixed(4)} ${product.investCurrency})`,
+    amount
+  }
 }
 
 export const getMaxAmount = (product: Product | undefined) => {
