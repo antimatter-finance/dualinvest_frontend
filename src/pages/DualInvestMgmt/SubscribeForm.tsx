@@ -115,10 +115,8 @@ export default function SubscribeForm({
   const handleSubscribe = useCallback(
     async (setIsConfirmed: (isConfirmed: boolean) => void) => {
       if (!product || !amount || !createOrderCallback || !checkOrderStatusCallback) return
-      let valRaw = +amount * +product?.multiplier * multiplier
-      if (currentCurrency.symbol === 'USDT') {
-        valRaw = Math.ceil(valRaw * 10) / 10
-      }
+      const valRaw = +amount * +product?.multiplier * multiplier
+
       const val = tryParseAmount(valRaw.toFixed(2), currentCurrency)?.raw?.toString()
       if (!val) return
       try {
@@ -287,10 +285,7 @@ export default function SubscribeForm({
                     maxWidth={'55%'}
                     sx={{ wordBreak: 'break-all' }}
                   >
-                    {currentCurrency?.symbol === 'USDT'
-                      ? Math.ceil(+product.multiplier * +amount * multiplier * 10) / 10
-                      : (+product.multiplier * +amount * multiplier).toFixed(2)}{' '}
-                    {product.investCurrency}
+                    {(+product.multiplier * +amount * multiplier).toFixed(4)} {product.investCurrency}
                   </Typography>
                   <Typography
                     component="span"
