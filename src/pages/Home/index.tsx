@@ -58,11 +58,10 @@ export default function Home() {
       display="flex"
       flexDirection="column"
       alignItems="center"
-      // display="grid"
-      // justifyItems={{ md: 'center' }}
       width="100%"
       alignContent="flex-start"
       marginBottom="auto"
+      paddingBottom="100px"
       gap={{ xs: 36, md: 80 }}
     >
       <Box
@@ -176,11 +175,24 @@ export default function Home() {
         </Grid>
 
         <Card>
-          <Box padding={{ xs: '40px 0 80px', md: '40px 0 100px' }} display="grid" gap={{ xs: 77, md: 130 }}>
+          <Box padding={{ xs: '40px 0 80px', md: '76px 0 100px' }} display="grid" gap={{ xs: 77, md: 130 }}>
+            <ProductCard
+              large
+              actionText="Start Now"
+              contentMargin={'0'}
+              imgHeight={isDownMd ? undefined : 268}
+              imgTitle={'shark'}
+              title="Weekly Sharkfin"
+              synospis={`Weekly Sharkfin is a principal protected product. Suitable for conservative investors.`}
+              hasUnderline
+              onClick={() => {
+                window.location.href = 'https://sharkfin.antimatter.finance/'
+              }}
+            />
             <ProductCard
               large
               imgHeight={isDownMd ? 300 : 420}
-              contentMargin={'0 0 60px'}
+              contentMargin={isDownMd ? '0' : '0 0 60px'}
               imgTitle={'home_dualInvest'}
               title="Dual Investment"
               synospis={`Earn on both ups and downs within 
@@ -197,6 +209,7 @@ a fluctuation range`}
               title="Defi Option Vault"
               synospis={`Automatic management of funds, cyclic compound interest.
 Earn yield on your idle assets`}
+              hasUnderline
               onClick={() => {
                 window.location.href = 'https://dov.antimatter.finance/#/defi'
               }}
@@ -237,7 +250,7 @@ Earn yield on your idle assets`}
               </Box>
               <Box width={isDownMd ? '100%' : undefined}>
                 <ProductCard
-                  grayButton
+                  grayButtonOutline
                   contentMargin={isDownMd ? '60px 0 20px' : '0'}
                   large
                   title="Dual Investment Plus"
@@ -358,7 +371,9 @@ function ProductCard({
   grayButton,
   imgHeight,
   imgUrl,
-  contentMargin
+  contentMargin,
+  hasUnderline,
+  grayButtonOutline
 }: {
   imgTitle?: string
   title: string
@@ -370,6 +385,8 @@ function ProductCard({
   imgHeight?: number
   imgUrl?: string
   contentMargin?: string
+  hasUnderline?: boolean
+  grayButtonOutline?: boolean
 }) {
   const isDownMd = useBreakpoint('md')
   const isDownSm = useBreakpoint('sm')
@@ -391,7 +408,8 @@ function ProductCard({
             sx={{ color: theme.palette.text.secondary, mt: 8, fontSize: 16, zIndex: 2 }}
             whiteSpace="pre-wrap"
             textAlign={'left'}
-            mb={imgHeight && !isDownMd ? 70 : 40}
+            maxWidth={400}
+            mb={40}
           >
             {synospis}
           </Typography>
@@ -401,7 +419,7 @@ function ProductCard({
             onClick={onClick}
             height="53px"
             style={
-              grayButton
+              grayButton || grayButtonOutline
                 ? {
                     zIndex: 2,
                     backgroundColor: theme.palette.background.default,
@@ -411,9 +429,10 @@ function ProductCard({
                       backgroundColor: theme.palette.primary.main
                     },
                     '&:disabled': {
-                      backgroundColor: theme.palette.background.default,
+                      backgroundColor: grayButtonOutline ? '#ffffff' : theme.palette.background.default,
                       color: theme.palette.text.primary
-                    }
+                    },
+                    border: grayButtonOutline ? '1px solid #252525' : undefined
                   }
                 : { zIndex: 2 }
             }
@@ -422,6 +441,16 @@ function ProductCard({
             {actionText === 'Explore' && <ChevronRight />}
           </Button>
         </Box>
+        {hasUnderline && (
+          <Box
+            width={isDownMd ? '100%' : '60%'}
+            height="1px"
+            sx={{ background: '#ADB9D8' }}
+            position="absolute"
+            right="0"
+            bottom={20}
+          />
+        )}
 
         {imgTitle && (
           <Box
@@ -433,10 +462,11 @@ function ProductCard({
               maxHeight: 385,
               padding: large ? '0px' : '10px 15px',
               display: 'flex',
-              alignItems: 'flex-end'
+              alignItems: 'flex-end',
+              position: 'relative'
             }}
           >
-            <AnimatedSvg fileName={imgTitle} />
+            <AnimatedSvg fileName={imgTitle} height={imgHeight ?? '200px'} />
           </Box>
         )}
         {imgUrl && (
@@ -448,7 +478,7 @@ function ProductCard({
               bottom: 0,
               maxWidth: '100%',
               margin: isDownMd ? '0 auto' : 'auto auto 0',
-              opacity: !onClick ? 0.5 : 1,
+              opacity: 1,
               height: imgHeight ?? '200px',
               padding: 0
             }}
