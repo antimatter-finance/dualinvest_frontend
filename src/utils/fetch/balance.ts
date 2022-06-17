@@ -35,7 +35,9 @@ export function assetBalanceFormatter(data: any[][] | any[], precision: number):
   return {
     available: available.toFixed(4),
     locked: locked.toFixed(4),
-    pnl: data[BalanceOrder.earned].data.data.PnL ? trimNumberString(data[BalanceOrder.earned].data.data.PnL, 4) : '-',
+    pnl: data[BalanceOrder.earned]?.data?.data?.PnL
+      ? trimNumberString(data[BalanceOrder.earned]?.data?.data?.PnL, 4)
+      : '-',
     totalInvest: available.add(locked).toFixed(4)
   }
   // return {
