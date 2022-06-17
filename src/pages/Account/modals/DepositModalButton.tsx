@@ -19,7 +19,14 @@ export default function DepositModalButton({ currentCurrency }: { currentCurrenc
   return (
     <>
       <ActionModal isOpen={isOpen} onDismiss={hideDeposit} token={currentCurrency} type={ActionType.DEPOSIT} />
-      <TextButton fontSize={12} color="#11BF2D" style={{ marginLeft: 8 }} onClick={showDeposit} disabled={!account}>
+      <TextButton
+        fontSize={12}
+        color="#11BF2D"
+        style={{ marginLeft: 8 }}
+        onClick={showDeposit}
+        // disabled={!account}
+        disabled={true}
+      >
         Deposit
       </TextButton>
     </>
