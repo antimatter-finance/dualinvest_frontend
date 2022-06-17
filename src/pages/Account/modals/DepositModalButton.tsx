@@ -2,11 +2,11 @@ import { useState, useCallback } from 'react'
 import TextButton from 'components/Button/TextButton'
 import ActionModal, { ActionType } from './ActionModal'
 import { Token } from 'constants/token'
-import { useActiveWeb3React } from 'hooks'
+// import { useActiveWeb3React } from 'hooks'
 
 export default function DepositModalButton({ currentCurrency }: { currentCurrency: Token }) {
   const [isOpen, setIsOpen] = useState(false)
-  const { account } = useActiveWeb3React()
+  // const { account } = useActiveWeb3React()
 
   const hideDeposit = useCallback(() => {
     setIsOpen(false)
