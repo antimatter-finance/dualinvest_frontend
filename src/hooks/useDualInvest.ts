@@ -10,6 +10,7 @@ import { Signature, SignatureRequest, SignatureRequestClaim, SignatureResponseCl
 import { IS_TEST_NET, NETWORK_CHAIN_ID } from 'constants/chain'
 import { CURRENCY_ADDRESS_MAP, DEFAULT_COIN_SYMBOL } from 'constants/currencies'
 import { toChecksumAddress } from 'web3-utils'
+import { trimNumberString } from 'utils/trimNumberString'
 
 export function useDualInvestBalance(token?: Token) {
   const contract = useDualInvestContract()
@@ -82,7 +83,7 @@ export function useDualInvestCallback(): {
           const signRes = await Axios.getSignatures<SignatureRequest, Signature>(
             {
               account: account,
-              amount: +amount,
+              amount: +trimNumberString(amount, 4),
               chainId: chainId,
               currency: currency,
               nonce: nonce.toString()
@@ -92,7 +93,7 @@ export function useDualInvestCallback(): {
           )
 
           const withdrawArgs = [
-            amount,
+            trimNumberString(amount, 4),
             currency,
             [signRes[0].signatory, signRes[0].signV, signRes[0].signR, signRes[0].signS]
           ]
