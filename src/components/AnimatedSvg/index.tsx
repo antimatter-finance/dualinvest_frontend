@@ -6,12 +6,14 @@ export default function AnimatedSvg({
   fileName,
   sx,
   className,
-  onClick
+  onClick,
+  height
 }: {
   fileName: string
   sx?: SxProps
   className?: string
   onClick?: () => void
+  height?: string | number
 }) {
   const ref = useRef(null)
 
@@ -31,7 +33,7 @@ export default function AnimatedSvg({
     <Box
       ref={ref}
       className={className}
-      style={{ width: '100%', display: 'flex', alignItems: 'flex-end' }}
+      style={{ width: '100%', display: 'flex', alignItems: 'flex-end', height: height }}
       sx={sx}
       onClick={onClick}
     ></Box>

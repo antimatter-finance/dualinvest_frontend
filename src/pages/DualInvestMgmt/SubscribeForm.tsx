@@ -102,7 +102,7 @@ export default function SubscribeForm({
   )
   const error = useMemo(() => {
     if (!product || !balance) return ''
-    let str = ''
+    let str = 'temporary disabled'
     if (amount !== '' && +balance < +amount * +product.multiplier * multiplier) str = ErrorType.insufficientBalance
     if (
       amount !== '' &&
@@ -115,10 +115,9 @@ export default function SubscribeForm({
   const handleSubscribe = useCallback(
     async (setIsConfirmed: (isConfirmed: boolean) => void) => {
       if (!product || !amount || !createOrderCallback || !checkOrderStatusCallback) return
-      const val = tryParseAmount(
-        (+amount * +product?.multiplier * multiplier).toFixed(2),
-        currentCurrency
-      )?.raw?.toString()
+      const valRaw = +amount * +product?.multiplier * multiplier
+
+      const val = tryParseAmount(valRaw.toFixed(2), currentCurrency)?.raw?.toString()
       if (!val) return
       try {
         setPending(true)
@@ -144,7 +143,7 @@ export default function SubscribeForm({
         const createOrderRes = await createOrderCallback(orderId, productId, val, currentCurrency.address, 0)
         addTransaction(createOrderRes, {
           createOrder: true,
-          summary: `Subscribing ${(+amount * +product?.multiplier * multiplier).toFixed(2)} ${
+          summary: `Subscribe ${(+amount * +product?.multiplier * multiplier).toFixed(2)} ${
             product.investCurrency
           } to ${product?.currency} [${product?.type === 'CALL' ? 'Upward' : 'Downward'}]`
         })
@@ -269,7 +268,7 @@ export default function SubscribeForm({
                   +
                 </SecondaryButton>
               ) : (
-                <TextButton fontSize={12} color="#11BF2D" style={{ marginLeft: 8 }} onClick={showDeposit}>
+                <TextButton fontSize={12} color="#11BF2D" style={{ marginLeft: 8 }} onClick={showDeposit} disabled>
                   Deposit
                 </TextButton>
               )}
@@ -286,7 +285,7 @@ export default function SubscribeForm({
                     maxWidth={'55%'}
                     sx={{ wordBreak: 'break-all' }}
                   >
-                    {(+product.multiplier * +amount * multiplier).toFixed(2)} {product.investCurrency}
+                    {(+product.multiplier * +amount * multiplier).toFixed(4)} {product.investCurrency}
                   </Typography>
                   <Typography
                     component="span"
@@ -319,7 +318,10 @@ export const getMinAmount = (product: Product | undefined) => {
   if (!product) return { string: '-', amount: 1 }
   const multiplier = product.type === 'CALL' ? 1 : +product.strikePrice
   const amount = Math.ceil(100 / +product.strikePrice)
-  return { string: `${amount} (${amount * multiplier * +product.multiplier} ${product.investCurrency})`, amount }
+  return {
+    string: `${amount} (${(amount * multiplier * +product.multiplier).toFixed(4)} ${product.investCurrency})`,
+    amount
+  }
 }
 
 export const getMaxAmount = (product: Product | undefined) => {

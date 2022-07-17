@@ -46,7 +46,7 @@ const RecordType: { [key in number]: 'withdraw' | 'deposit' | 'vault deposit' | 
   4: 'vault withdraw'
 }
 
-const BalanceTableHeader = ['', 'Deposit Amount', 'Available', 'Investing (Locked)', 'PnL', 'Recur', '']
+const BalanceTableHeader = ['', 'Deposit Amount', 'Available', 'Investing (Locked)', 'PnL', /*'Recur',*/ '']
 const DetailTableHeader = ['Type', 'Token', 'Amount', 'Date']
 
 function TokenHeader({ token }: { token: Currency }) {
@@ -415,7 +415,7 @@ function BalanceActions({
 
   return (
     <Box display="flex" key="action" gap={10} pl={isDownMd ? 0 : 20} component="div">
-      <Button fontSize={14} style={{ width: 92, borderRadius: 4, height: 36 }} onClick={onDeposit}>
+      <Button fontSize={14} style={{ width: 92, borderRadius: 4, height: 36 }} onClick={onDeposit} disabled>
         Deposit
       </Button>
       <Button fontSize={14} style={{ width: 92, borderRadius: 4, height: 36 }} onClick={onWithdraw}>

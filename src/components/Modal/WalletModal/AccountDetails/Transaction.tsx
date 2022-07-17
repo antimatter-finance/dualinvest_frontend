@@ -49,7 +49,7 @@ export default function Transaction({ hash }: { hash: string }) {
         )}
 
         <Box display="flex">
-          <TransactionStatusText>{summary ?? hash} ↗</TransactionStatusText>
+          <TransactionStatusText>{summary ? summary : hash} ↗</TransactionStatusText>
         </Box>
       </Box>
     </ExternalLink>

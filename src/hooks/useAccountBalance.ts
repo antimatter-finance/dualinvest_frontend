@@ -1,9 +1,8 @@
 import { useActiveWeb3React } from 'hooks'
 import { useCallback, useMemo, useState } from 'react'
 import usePollingWithMaxRetries from './usePollingWithMaxRetries'
-import { Axios } from 'utils/axios'
 import { assetBalanceFormatter, BalanceInfo } from 'utils/fetch/balance'
-import { CURRENCIES, SUPPORTED_CURRENCY_SYMBOL } from 'constants/currencies'
+import { CURRENCIES, SUPPORTED_CURRENCIES, SUPPORTED_CURRENCY_SYMBOL } from 'constants/currencies'
 import { ChainId, NETWORK_CHAIN_ID } from 'constants/chain'
 import { useSingleContractMultipleData } from 'state/multicall/hooks'
 import { useDualInvestContract } from './useContract'
@@ -11,6 +10,7 @@ import { trimNumberString } from 'utils/trimNumberString'
 import { parseBalance } from 'utils/parseAmount'
 import { Token } from 'constants/token'
 import { ZERO_ADDRESS } from 'constants/index'
+import { Axios } from 'utils/axios'
 
 type AccountBalanceType = {
   [key: typeof SUPPORTED_CURRENCY_SYMBOL[ChainId][number]]: BalanceInfo | undefined
@@ -61,37 +61,45 @@ export function useAccountBalances(): AccountBalanceType {
 
   const allTokenPromiseFn = useCallback(() => {
     return Promise.all(
-      SUPPORTED_CURRENCY_SYMBOL[chainId ?? NETWORK_CHAIN_ID].map(symbol =>
-        Axios.post('getUserAssets', undefined, {
+      SUPPORTED_CURRENCY_SYMBOL[chainId ?? NETWORK_CHAIN_ID].map(symbol => {
+        const CUR = CURRENCIES[chainId ?? NETWORK_CHAIN_ID]
+        const arg = [CUR[symbol]?.address ?? '', account ?? ZERO_ADDRESS]
+        const pnl = Axios.post('getUserAssets', undefined, {
           account,
           chainId: chainId ?? NETWORK_CHAIN_ID,
           currency: CURRENCIES[chainId ?? NETWORK_CHAIN_ID][symbol]?.address,
           symbol: CURRENCIES[chainId ?? NETWORK_CHAIN_ID][symbol]?.symbol
         })
-      )
+        return Promise.all([contract?.balances(...arg), contract?.balances_lock(...arg), pnl])
+      })
     )
-  }, [account, chainId])
+  }, [account, chainId, contract])
 
-  const usdtPromiseFn = useCallback(
-    () =>
-      Axios.post('getUserAssets', undefined, {
-        account,
-        chainId: chainId ?? NETWORK_CHAIN_ID,
-        currency: CURRENCIES[chainId ?? NETWORK_CHAIN_ID]?.USDT?.address,
-        symbol: CURRENCIES[chainId ?? NETWORK_CHAIN_ID]?.USDT?.symbol
-      }),
-    [account, chainId]
+  const usdtPromiseFn = useCallback(() => {
+    const CUR = CURRENCIES[chainId ?? NETWORK_CHAIN_ID]
+    const arg = [CUR.USDT?.address ?? '', account ?? ZERO_ADDRESS]
+    const pnl = Axios.post('getUserAssets', undefined, {
+      account,
+      chainId: chainId ?? NETWORK_CHAIN_ID,
+      currency: CURRENCIES[chainId ?? NETWORK_CHAIN_ID]?.USDT?.address,
+      symbol: CURRENCIES[chainId ?? NETWORK_CHAIN_ID]?.USDT?.symbol
+    })
+    return Promise.all([contract?.balances(...arg), contract?.balances_lock(...arg), pnl])
+  }, [account, chainId, contract])
+
+  const usdtCallbackFn = useCallback(
+    r => {
+      setUsdtRes(assetBalanceFormatter(r, CURRENCIES[chainId ?? NETWORK_CHAIN_ID].USDT.decimals))
+    },
+    [chainId]
   )
-  const usdtCallbackFn = useCallback(r => {
-    setUsdtRes(assetBalanceFormatter(r.data.data))
-  }, [])
 
   const allTokenCallbackFn = useCallback(r => {
     setAllRes(r)
   }, [])
 
-  usePollingWithMaxRetries(usdtPromiseFn, usdtCallbackFn, 300000)
-  usePollingWithMaxRetries(allTokenPromiseFn, allTokenCallbackFn, 300000, 5, true)
+  usePollingWithMaxRetries(usdtPromiseFn, usdtCallbackFn, 300000, 5, true, true)
+  usePollingWithMaxRetries(allTokenPromiseFn, allTokenCallbackFn, 300000, 5, true, true)
 
   const usdtResult: BalanceInfo | undefined = useMemo(() => {
     const usdtRecurTotal = SUPPORTED_CURRENCY_SYMBOL[chainId ?? NETWORK_CHAIN_ID].reduce((acc, symbol, idx) => {
@@ -122,7 +130,9 @@ export function useAccountBalances(): AccountBalanceType {
         CURRENCIES[chainId ?? NETWORK_CHAIN_ID][symbol]
       )
       const recurTotal = getRecurTotal(recurLocked, recurAvailable)
-      const res = allRes?.[idx]?.data?.data?.Available ? assetBalanceFormatter(allRes[idx].data.data) : undefined
+      const res = allRes?.[idx]
+        ? assetBalanceFormatter(allRes[idx], SUPPORTED_CURRENCIES[symbol]?.decimals ?? 18)
+        : undefined
       acc[symbol] = res
         ? {
             ...res,

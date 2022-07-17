@@ -26,6 +26,7 @@ import useModal from 'hooks/useModal'
 import { TokenAmount } from 'constants/token'
 import { NETWORK_CHAIN_ID } from 'constants/chain'
 import { DEFAULT_COIN_SYMBOL } from 'constants/currencies'
+import { trimNumberString } from 'utils/trimNumberString'
 
 export enum ActionType {
   DEPOSIT = 'deposit',
@@ -143,7 +144,7 @@ export default function ActionModal({
   )
 
   const { onDeposit, onWithdraw } = useActionCallback(
-    tryParseAmount(val, token)?.raw.toString(),
+    tryParseAmount(trimNumberString(val, 4), token)?.raw.toString(),
     token,
     setHash,
     handleErrorModal
