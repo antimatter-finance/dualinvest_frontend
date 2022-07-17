@@ -70,10 +70,12 @@ const formatData = (data: Product, isDownMd: boolean, hanldeSubscribe: () => voi
 
 export default function ProductTable({
   productList,
-  strikeCurrencySymbol
+  strikeCurrencySymbol,
+  loaded
 }: {
   productList: SingleCurProductList | undefined
   strikeCurrencySymbol: string
+  loaded?: boolean
 }) {
   const isDownMd = useBreakpoint('md')
   const history = useHistory()
@@ -127,7 +129,7 @@ export default function ProductTable({
           description={`Deposit ${strikeCurrencySymbol}, and settle the principal and income at maturity as ${strikeCurrencySymbol}
   or USDT`}
         />
-        <DataTable onSubscribe={handleSubscribe} productList={productList?.call} />
+        <DataTable onSubscribe={handleSubscribe} productList={productList?.call} loaded={loaded} />
       </Box>
 
       <Box
@@ -157,7 +159,7 @@ export default function ProductTable({
           priceCurSymbol={strikeCurrencySymbol}
           description={` Deposit USDT, and settle the principal and income at maturity as ${strikeCurrencySymbol} or USDT`}
         />
-        <DataTable onSubscribe={handleSubscribe} productList={productList?.put} />
+        <DataTable onSubscribe={handleSubscribe} productList={productList?.put} loaded={loaded} />
       </Box>
     </Box>
   )
@@ -165,10 +167,12 @@ export default function ProductTable({
 
 function DataTable({
   onSubscribe,
-  productList
+  productList,
+  loaded
 }: {
   onSubscribe: (id: number, productChainId: ChainId) => () => void
   productList: Product[] | undefined
+  loaded?: boolean
 }) {
   const [orderBy, setOrderBy] = useState(headers[0])
   const [order, setOrder] = useState<'asc' | 'desc'>('asc')
@@ -205,19 +209,23 @@ function DataTable({
 
   return (
     <>
-      {productList ? (
-        <>
-          <Table
-            createSortfunction={createSortfunction}
-            order={order}
-            orderBy={orderBy}
-            sortHeaders={['Exercise Price', 'APY', 'Delivery Date']}
-            variant="outlined"
-            header={headers}
-            rows={sortedData}
-          />
-          {productList.length <= 0 && <NoDataCard outlined />}
-        </>
+      {loaded ? (
+        productList ? (
+          <>
+            <Table
+              createSortfunction={createSortfunction}
+              order={order}
+              orderBy={orderBy}
+              sortHeaders={['Exercise Price', 'APY', 'Delivery Date']}
+              variant="outlined"
+              header={headers}
+              rows={sortedData}
+            />
+            {productList.length <= 0 && <NoDataCard outlined />}
+          </>
+        ) : (
+          <NoDataCard outlined />
+        )
       ) : (
         <Spinner marginLeft="auto" marginRight="auto" size={60} style={{ marginTop: '40px' }} />
       )}

@@ -57,7 +57,7 @@ export default function DualInvest() {
           contents={SUPPORTED_CURRENCY_SYMBOL[chainId ?? NETWORK_CHAIN_ID].map(symbol => {
             const list = productList?.[symbol as keyof typeof productList]
 
-            return <ProductTable strikeCurrencySymbol={symbol} productList={list} key={symbol} />
+            return <ProductTable strikeCurrencySymbol={symbol} productList={list} key={symbol} loaded={!!productList} />
           })}
         />
       </Box>
