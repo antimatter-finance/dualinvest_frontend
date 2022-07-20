@@ -415,7 +415,7 @@ function BalanceActions({
 
   return (
     <Box display="flex" key="action" gap={10} pl={isDownMd ? 0 : 20} component="div">
-      <Button fontSize={14} style={{ width: 92, borderRadius: 4, height: 36 }} onClick={onDeposit} disabled>
+      <Button fontSize={14} style={{ width: 92, borderRadius: 4, height: 36 }} onClick={onDeposit}>
         Deposit
       </Button>
       <Button fontSize={14} style={{ width: 92, borderRadius: 4, height: 36 }} onClick={onWithdraw}>

@@ -102,7 +102,7 @@ export default function SubscribeForm({
   )
   const error = useMemo(() => {
     if (!product || !balance) return ''
-    let str = 'temporary disabled'
+    let str = ''
     if (amount !== '' && +balance < +amount * +product.multiplier * multiplier) str = ErrorType.insufficientBalance
     if (
       amount !== '' &&
@@ -268,7 +268,7 @@ export default function SubscribeForm({
                   +
                 </SecondaryButton>
               ) : (
-                <TextButton fontSize={12} color="#11BF2D" style={{ marginLeft: 8 }} onClick={showDeposit} disabled>
+                <TextButton fontSize={12} color="#11BF2D" style={{ marginLeft: 8 }} onClick={showDeposit}>
                   Deposit
                 </TextButton>
               )}
