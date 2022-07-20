@@ -178,6 +178,18 @@ export default function Home() {
           <Box padding={{ xs: '40px 0 80px', md: '76px 0 100px' }} display="grid" gap={{ xs: 77, md: 130 }}>
             <ProductCard
               large
+              imgHeight={isDownMd ? 300 : 420}
+              contentMargin={isDownMd ? '0' : '0 0 60px'}
+              imgTitle={'home_dualInvest'}
+              title="Dual Investment"
+              synospis={`Earn on both ups and downs within 
+a fluctuation range`}
+              onClick={() => {
+                history.push(routes.dualInvest)
+              }}
+            />
+            <ProductCard
+              large
               actionText="Start Now"
               contentMargin={'0'}
               imgHeight={isDownMd ? undefined : 268}
@@ -189,18 +201,7 @@ export default function Home() {
                 window.location.href = 'https://sharkfin.antimatter.finance/'
               }}
             />
-            <ProductCard
-              large
-              imgHeight={isDownMd ? 300 : 420}
-              contentMargin={isDownMd ? '0' : '0 0 60px'}
-              imgTitle={'home_dualInvest'}
-              title="Dual Investment"
-              synospis={`Earn on both ups and downs within 
-a fluctuation range`}
-              onClick={() => {
-                history.push(routes.dualInvest)
-              }}
-            />
+
             <ProductCard
               large
               actionText="Start Now"
