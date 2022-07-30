@@ -109,6 +109,9 @@ export const productListFormatter = (raw: ProductRaw[]): ProductList => {
         put: []
       }
     }
+    if (item.is_active !== true) {
+      return acc
+    }
     if (item.type === TYPE.call) {
       acc[item.currency as Partial<keyof typeof SYMBOL_MAP>].call.push(productFormatter(item))
     } else {
